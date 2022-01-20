@@ -34,7 +34,7 @@ func (ur *userRepository) GetUserById(id int) (entities.UserResponseFormat, erro
 
 // insert new user
 func (ur *userRepository) CreateUser(user entities.User) error {
-	_, err := ur.db.Exec("INSERT INTO users(name, user_name, email, password, born_date, gender) VALUES(?,?,?,?,?)", user.Name, user.User_name, user.Email, user.Password, user.Born_date, user.Gender)
+	_, err := ur.db.Exec("INSERT INTO users(name, user_name, email, password, born_date, gender) VALUES(?,?,?,?,?,?)", user.Name, user.User_name, user.Email, user.Password, user.Born_date, user.Gender)
 	return err
 }
 
