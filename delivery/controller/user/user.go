@@ -34,12 +34,12 @@ func (uc UserController) GetUserController() echo.HandlerFunc {
 		userId, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 		// get user from db
 		user, err := uc.repository.GetUserById(userId)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 
 		return c.JSON(http.StatusOK, response.SuccessOperationLogin("success", "success get user", user, currentUserName))
@@ -67,7 +67,7 @@ func (uc UserController) CreateUserController() echo.HandlerFunc {
 		// create user to database
 		err := uc.repository.CreateUser(user)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create user"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 
 		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success create user"))
@@ -86,20 +86,20 @@ func (uc UserController) UpdateUserController() echo.HandlerFunc {
 		// get id from param
 		userId, errConv := strconv.Atoi(c.Param("id"))
 		if errConv != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 		// binding data
 		user := entities.User{}
 		if errBind := c.Bind(&user); errBind != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to bind data"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 		// update user based on id to database
 		errUpdate := uc.repository.UpdateUser(user, userId)
 		if errUpdate != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 
-		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "update success"))
+		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success update user"))
 	}
 }
 
@@ -115,14 +115,14 @@ func (uc UserController) DeleteUserController() echo.HandlerFunc {
 		// get id from param
 		userId, errConv := strconv.Atoi(c.Param("id"))
 		if errConv != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 		// delete user based on id from database
 		errDelete := uc.repository.DeleteUser(userId)
 		if errDelete != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "bad request"))
 		}
 
-		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "delete success"))
+		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success delete user"))
 	}
 }
