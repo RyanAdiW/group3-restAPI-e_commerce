@@ -2,10 +2,13 @@ package user
 
 import (
 	"net/http"
-	response "sirclo/groupproject/restapi/delivery/common"
-	"sirclo/groupproject/restapi/entities"
-	userRepo "sirclo/groupproject/restapi/repository/user"
 	"strconv"
+
+	"sirclo/groupproject/restapi/entities"
+
+	response "sirclo/groupproject/restapi/delivery/common"
+	middlewares "sirclo/groupproject/restapi/delivery/middleware"
+	userRepo "sirclo/groupproject/restapi/repository/user"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,9 +21,15 @@ func NewUserController(user userRepo.UserRepository) *UserController {
 	return &UserController{repository: user}
 }
 
-// get user by id controller
+// 1. get user by id controller
 func (uc UserController) GetUserController() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		currentUserName, err := middlewares.GetUserName(c)
+
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
+		}
+
 		// get id from param
 		userId, err := strconv.Atoi(c.Param("id"))
 
@@ -33,11 +42,11 @@ func (uc UserController) GetUserController() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
 		}
 
-		return c.JSON(http.StatusOK, response.SuccessOperation("success", "success get user", user))
+		return c.JSON(http.StatusOK, response.SuccessOperationLogin("success", "success get user", user, currentUserName))
 	}
 }
 
-// create new user	controller
+// 2. create new user	controller
 func (uc UserController) CreateUserController() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// bind data
@@ -65,9 +74,15 @@ func (uc UserController) CreateUserController() echo.HandlerFunc {
 	}
 }
 
-// update user controller
+// 3. update user controller
 func (uc UserController) UpdateUserController() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		_, err := middlewares.GetUserName(c)
+
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
+		}
+
 		// get id from param
 		userId, errConv := strconv.Atoi(c.Param("id"))
 		if errConv != nil {
@@ -79,8 +94,8 @@ func (uc UserController) UpdateUserController() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to bind data"))
 		}
 		// update user based on id to database
-		err := uc.repository.UpdateUser(user, userId)
-		if err != nil {
+		errUpdate := uc.repository.UpdateUser(user, userId)
+		if errUpdate != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
 		}
 
@@ -88,17 +103,23 @@ func (uc UserController) UpdateUserController() echo.HandlerFunc {
 	}
 }
 
-// delete user controller
+// 4. delete user controller
 func (uc UserController) DeleteUserController() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		_, err := middlewares.GetUserName(c)
+
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
+		}
+
 		// get id from param
 		userId, errConv := strconv.Atoi(c.Param("id"))
 		if errConv != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
 		}
 		// delete user based on id from database
-		err := uc.repository.DeleteUser(userId)
-		if err != nil {
+		errDelete := uc.repository.DeleteUser(userId)
+		if errDelete != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
 		}
 

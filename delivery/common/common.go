@@ -14,7 +14,23 @@ type SuccessResponse struct {
 	Data    interface{} `json:"data"`
 }
 
+type SuccessResponseLogin struct {
+	Code            int         `json:"code"`
+	Status          string      `json:"status"`
+	Message         string      `json:"message"`
+	User            interface{} `json:"user"`
+	CurrentUserName interface{} `json:"current_user_name"`
+}
+
 //NewInternalServerErrorResponse default internal server error response
+func SuccessOperationDefault(status, message string) DefaultResponse {
+	return DefaultResponse{
+		200,
+		status,
+		message,
+	}
+}
+
 func SuccessOperation(status, message string, data interface{}) SuccessResponse {
 	return SuccessResponse{
 		200,
@@ -24,11 +40,13 @@ func SuccessOperation(status, message string, data interface{}) SuccessResponse 
 	}
 }
 
-func SuccessOperationDefault(status, message string) DefaultResponse {
-	return DefaultResponse{
+func SuccessOperationLogin(status, message string, user, currentUserName interface{}) SuccessResponseLogin {
+	return SuccessResponseLogin{
 		200,
 		status,
 		message,
+		user,
+		currentUserName,
 	}
 }
 
@@ -63,6 +81,15 @@ func BadRequest(status, message string) DefaultResponse {
 func ForbiddedRequest(status, message string) DefaultResponse {
 	return DefaultResponse{
 		403,
+		status,
+		message,
+	}
+}
+
+//ForbiddedRequest default not found error response
+func UnauthorizedRequest(status, message string) DefaultResponse {
+	return DefaultResponse{
+		401,
 		status,
 		message,
 	}
