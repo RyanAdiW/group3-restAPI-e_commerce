@@ -57,7 +57,3 @@ func (ur *userRepository) DeleteUser(id int) error {
 	}
 	return err
 }
-
-func main() {
-
-}
