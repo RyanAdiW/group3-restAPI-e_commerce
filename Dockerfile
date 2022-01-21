@@ -9,6 +9,7 @@ WORKDIR /app
 # copy all files from this directory to /app
 COPY ./ /app
 # build/compile
+RUN cd app
 RUN go build -o rest-api
 
 # the command that should be executed when
