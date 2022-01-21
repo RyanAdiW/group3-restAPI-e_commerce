@@ -5,7 +5,7 @@ type UserRequestFormat struct {
 	Username  string `json:"username" form:"username"`
 	Email     string `json:"email" form:"email"`
 	Password  string `json:"password" form:"password"`
-	Born_date string `json:"birth_date" form:"birth_date"`
+	Born_date string `json:"born_date" form:"born_date"`
 	Gender    string `json:"gender" form:"gender"`
 	Url_photo string `json:"url_photo" form:"url_photo"`
 }
