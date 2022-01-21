@@ -23,7 +23,7 @@ func (a *authRepository) LoginUserName(userName, password string) (string, error
 	if isExist := result.Next(); !isExist {
 		return "", fmt.Errorf("id not found")
 	}
-	var user entities.User
+	var user entities.Users
 	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Birth_date, &user.Gender)
 	if errScan != nil {
 		return "", errScan

@@ -6,7 +6,7 @@ import (
 
 type UserRepository interface {
 	GetUserById(id int) (entities.UserResponseFormat, error)
-	CreateUser(user entities.User) error
-	UpdateUser(user entities.User, id int) error
+	CreateUser(user entities.Users) error
+	UpdateUser(user entities.Users, id int) error
 	DeleteUser(id int) error
 }

@@ -33,13 +33,13 @@ func (ur *userRepository) GetUserById(id int) (entities.UserResponseFormat, erro
 }
 
 // insert new user
-func (ur *userRepository) CreateUser(user entities.User) error {
+func (ur *userRepository) CreateUser(user entities.Users) error {
 	_, err := ur.db.Exec("INSERT INTO users(name, user_name, email, password, born_date, gender) VALUES(?,?,?,?,?,?)", user.Name, user.Username, user.Email, user.Password, user.Birth_date, user.Gender)
 	return err
 }
 
 // update user
-func (ur *userRepository) UpdateUser(user entities.User, id int) error {
+func (ur *userRepository) UpdateUser(user entities.Users, id int) error {
 	res, err := ur.db.Exec("UPDATE users SET name=?,user_name=?,email=?,password=?,born_date=?,gender=? WHERE id=?", user.Name, user.Username, user.Email, user.Password, user.Birth_date, user.Gender, id)
 	row, _ := res.RowsAffected()
 	if row == 0 {
