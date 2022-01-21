@@ -62,6 +62,7 @@ func (uc UserController) CreateUserController() echo.HandlerFunc {
 			Password:   userRequest.Password,
 			Birth_date: userRequest.Birth_date,
 			Gender:     userRequest.Gender,
+			Url_photo:  userRequest.Url_photo,
 		}
 
 		// create user to database

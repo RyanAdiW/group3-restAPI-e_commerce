@@ -8,6 +8,7 @@ type User struct {
 	Password   string `json:"password" form:"password"`
 	Birth_date string `json:"birth_date" form:"birth_date"`
 	Gender     string `json:"gender" form:"gender"`
+	Url_photo  string `json:"url_photo" form:"url_photo"`
 }
 
 type UserResponseFormat struct {
@@ -17,4 +18,5 @@ type UserResponseFormat struct {
 	Email      string `json:"email" form:"email"`
 	Birth_date string `json:"birth_date" form:"birth_date"`
 	Gender     string `json:"gender" form:"gender"`
+	Url_photo  string `json:"url_photo" form:"url_photo"`
 }
