@@ -16,7 +16,7 @@ func NewAuthRepository(db *sql.DB) *authRepository {
 }
 
 func (a *authRepository) LoginUserName(userName, password string) (string, error) {
-	result, err := a.db.Query("SELECT * FROM users WHERE user_name=? AND password=?", userName, password)
+	result, err := a.db.Query("SELECT * FROM users WHERE username=? AND password=?", userName, password)
 	if err != nil {
 		return "", err
 	}
@@ -24,7 +24,7 @@ func (a *authRepository) LoginUserName(userName, password string) (string, error
 		return "", fmt.Errorf("id not found")
 	}
 	var user entities.Users
-	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Birth_date, &user.Gender)
+	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Born_date, &user.Gender, &user.Url_photo)
 	if errScan != nil {
 		return "", errScan
 	}
@@ -33,4 +33,21 @@ func (a *authRepository) LoginUserName(userName, password string) (string, error
 		return "", err
 	}
 	return token, nil
+}
+
+func (a *authRepository) GetPasswordByUsername(userName string) (string, error) {
+	result, err := a.db.Query("SELECT * FROM users WHERE username=?", userName)
+	if err != nil {
+		return "", err
+	}
+	if isExist := result.Next(); !isExist {
+		return "", fmt.Errorf("id not found")
+	}
+	var user entities.Users
+	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Born_date, &user.Gender, &user.Url_photo)
+	if errScan != nil {
+		return "", errScan
+	}
+	password := user.Password
+	return password, nil
 }

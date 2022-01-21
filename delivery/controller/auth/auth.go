@@ -5,6 +5,8 @@ import (
 	"sirclo/groupproject/restapi/delivery/common"
 	"sirclo/groupproject/restapi/repository/auth"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,9 +26,20 @@ func (ac AuthController) LoginUserNameController() echo.HandlerFunc {
 		if err := c.Bind(&loginRequest); err != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest("unauthorized", "failed to bind"))
 		}
+		password := []byte(loginRequest.Password)
+
+		hashedPassword, errPass := ac.repository.GetPasswordByUsername(loginRequest.Username)
+		if errPass != nil {
+			return c.JSON(http.StatusBadRequest, common.BadRequest("unauthorized", "user not found"))
+		}
+
+		errMatch := bcrypt.CompareHashAndPassword([]byte(hashedPassword), password)
+		if errMatch != nil {
+			return c.JSON(http.StatusBadRequest, common.BadRequest("unauthorized", "user not found"))
+		}
 
 		// get token from login credential
-		token, err := ac.repository.LoginUserName(loginRequest.User_name, loginRequest.Password)
+		token, err := ac.repository.LoginUserName(loginRequest.Username, hashedPassword)
 
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest("unauthorized", "user not found"))
@@ -34,7 +47,7 @@ func (ac AuthController) LoginUserNameController() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"token": token,
-			"name":  loginRequest.User_name,
+			"name":  loginRequest.Username,
 		})
 	}
 }

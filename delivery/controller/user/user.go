@@ -6,6 +6,8 @@ import (
 
 	"sirclo/groupproject/restapi/entities"
 
+	"golang.org/x/crypto/bcrypt"
+
 	response "sirclo/groupproject/restapi/delivery/common"
 	middlewares "sirclo/groupproject/restapi/delivery/middleware"
 	userRepo "sirclo/groupproject/restapi/repository/user"
@@ -54,15 +56,21 @@ func (uc UserController) CreateUserController() echo.HandlerFunc {
 		if err := c.Bind(&userRequest); err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to bind data"))
 		}
+		password := []byte(userRequest.Password)
+
+		hashedPassword, errEncrypt := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+		if errEncrypt != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to encrpyt password"))
+		}
 
 		user := entities.Users{
-			Name:       userRequest.Name,
-			Username:   userRequest.Username,
-			Email:      userRequest.Email,
-			Password:   userRequest.Password,
-			Birth_date: userRequest.Birth_date,
-			Gender:     userRequest.Gender,
-			Url_photo:  userRequest.Url_photo,
+			Name:      userRequest.Name,
+			Username:  userRequest.Username,
+			Email:     userRequest.Email,
+			Password:  string(hashedPassword),
+			Born_date: userRequest.Born_date,
+			Gender:    userRequest.Gender,
+			Url_photo: userRequest.Url_photo,
 		}
 
 		// create user to database
@@ -94,6 +102,13 @@ func (uc UserController) UpdateUserController() echo.HandlerFunc {
 		if errBind := c.Bind(&user); errBind != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to bind data"))
 		}
+		password := []byte(user.Password)
+
+		hashedPassword, errEncrypt := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+		if errEncrypt != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to encrpyt password"))
+		}
+		user.Password = string(hashedPassword)
 		// update user based on id to database
 		errUpdate := uc.repository.UpdateUser(user, userId)
 		if errUpdate != nil {
