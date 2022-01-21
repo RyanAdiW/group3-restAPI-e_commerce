@@ -24,11 +24,11 @@ func (a *authRepository) LoginUserName(userName, password string) (string, error
 		return "", fmt.Errorf("id not found")
 	}
 	var user entities.User
-	errScan := result.Scan(&user.Id, &user.Name, &user.User_name, &user.Email, &user.Password, &user.Born_date, &user.Gender)
+	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Birth_date, &user.Gender)
 	if errScan != nil {
 		return "", errScan
 	}
-	token, err := _middlewares.CreateToken(user.Id, user.User_name)
+	token, err := _middlewares.CreateToken(user.Id, user.Username)
 	if err != nil {
 		return "", err
 	}

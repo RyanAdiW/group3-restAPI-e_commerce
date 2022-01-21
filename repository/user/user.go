@@ -25,7 +25,7 @@ func (ur *userRepository) GetUserById(id int) (entities.UserResponseFormat, erro
 	}
 
 	var user entities.UserResponseFormat
-	errScan := result.Scan(&user.Id, &user.Name, &user.User_name, &user.Email, &user.Born_date, &user.Gender)
+	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Birth_date, &user.Gender)
 	if errScan != nil {
 		return entities.UserResponseFormat{}, errScan
 	}
@@ -34,13 +34,13 @@ func (ur *userRepository) GetUserById(id int) (entities.UserResponseFormat, erro
 
 // insert new user
 func (ur *userRepository) CreateUser(user entities.User) error {
-	_, err := ur.db.Exec("INSERT INTO users(name, user_name, email, password, born_date, gender) VALUES(?,?,?,?,?,?)", user.Name, user.User_name, user.Email, user.Password, user.Born_date, user.Gender)
+	_, err := ur.db.Exec("INSERT INTO users(name, user_name, email, password, born_date, gender) VALUES(?,?,?,?,?,?)", user.Name, user.Username, user.Email, user.Password, user.Birth_date, user.Gender)
 	return err
 }
 
 // update user
 func (ur *userRepository) UpdateUser(user entities.User, id int) error {
-	res, err := ur.db.Exec("UPDATE users SET name=?,user_name=?,email=?,password=?,born_date=?,gender=? WHERE id=?", user.Name, user.User_name, user.Email, user.Password, user.Born_date, user.Gender, id)
+	res, err := ur.db.Exec("UPDATE users SET name=?,user_name=?,email=?,password=?,born_date=?,gender=? WHERE id=?", user.Name, user.Username, user.Email, user.Password, user.Birth_date, user.Gender, id)
 	row, _ := res.RowsAffected()
 	if row == 0 {
 		return fmt.Errorf("id not found")

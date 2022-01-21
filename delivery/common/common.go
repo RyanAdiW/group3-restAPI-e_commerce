@@ -18,7 +18,7 @@ type SuccessResponseLogin struct {
 	Code            int         `json:"code"`
 	Status          string      `json:"status"`
 	Message         string      `json:"message"`
-	User            interface{} `json:"user"`
+	Data            interface{} `json:"data"`
 	CurrentUserName interface{} `json:"current_user_name"`
 }
 

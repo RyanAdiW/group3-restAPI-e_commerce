@@ -56,12 +56,12 @@ func (uc UserController) CreateUserController() echo.HandlerFunc {
 		}
 
 		user := entities.User{
-			Name:      userRequest.Name,
-			User_name: userRequest.User_name,
-			Email:     userRequest.Email,
-			Password:  userRequest.Password,
-			Born_date: userRequest.Born_date,
-			Gender:    userRequest.Gender,
+			Name:       userRequest.Name,
+			Username:   userRequest.Username,
+			Email:      userRequest.Email,
+			Password:   userRequest.Password,
+			Birth_date: userRequest.Birth_date,
+			Gender:     userRequest.Gender,
 		}
 
 		// create user to database
