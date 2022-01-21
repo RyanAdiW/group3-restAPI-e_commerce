@@ -1,6 +1,6 @@
 package entities
 
-type User struct {
+type Users struct {
 	Id         int    `json:"id" form:"id"`
 	Name       string `json:"name" form:"name"`
 	Username   string `json:"username" form:"username"`
