@@ -16,7 +16,7 @@ func NewUserReposiroty(db *sql.DB) *userRepository {
 
 // get user by id
 func (ur *userRepository) GetUserById(id int) (entities.UserResponseFormat, error) {
-	result, err := ur.db.Query(`SELECT id, name, user_name, email, born_date, gender, url_photo FROM users WHERE id = ?`, id)
+	result, err := ur.db.Query(`SELECT id, name, username, email, born_date, gender, url_photo FROM users WHERE id = ?`, id)
 	if err != nil {
 		return entities.UserResponseFormat{}, err
 	}
@@ -25,7 +25,7 @@ func (ur *userRepository) GetUserById(id int) (entities.UserResponseFormat, erro
 	}
 
 	var user entities.UserResponseFormat
-	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Birth_date, &user.Gender, &user.Url_photo)
+	errScan := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Born_date, &user.Gender, &user.Url_photo)
 	if errScan != nil {
 		return entities.UserResponseFormat{}, errScan
 	}
@@ -34,13 +34,13 @@ func (ur *userRepository) GetUserById(id int) (entities.UserResponseFormat, erro
 
 // insert new user
 func (ur *userRepository) CreateUser(user entities.Users) error {
-	_, err := ur.db.Exec("INSERT INTO users(name, user_name, email, password, born_date, gender, url_photo) VALUES(?,?,?,?,?,?,?)", user.Name, user.Username, user.Email, user.Password, user.Birth_date, user.Gender, user.Url_photo)
+	_, err := ur.db.Exec("INSERT INTO users(name, username, email, password, born_date, gender, url_photo) VALUES(?,?,?,?,?,?,?)", user.Name, user.Username, user.Email, user.Password, user.Born_date, user.Gender, user.Url_photo)
 	return err
 }
 
 // update user
 func (ur *userRepository) UpdateUser(user entities.Users, id int) error {
-	res, err := ur.db.Exec("UPDATE users SET name=?,user_name=?,email=?,password=?,born_date=?,gender=?, url_photo=? WHERE id=?", user.Name, user.Username, user.Email, user.Password, user.Birth_date, user.Gender, user.Url_photo, id)
+	res, err := ur.db.Exec("UPDATE users SET name=?,username=?,email=?,password=?,born_date=?,gender=?, url_photo=? WHERE id=?", user.Name, user.Username, user.Email, user.Password, user.Born_date, user.Gender, user.Url_photo, id)
 	row, _ := res.RowsAffected()
 	if row == 0 {
 		return fmt.Errorf("id not found")
