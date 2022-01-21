@@ -4,10 +4,10 @@ import (
 	"sirclo/groupproject/restapi/entities"
 )
 
-type UserRepository interface {
+type ProductRepository interface {
 	GetProducts() ([]entities.ProductResponseFormat, error)
 	GetProductById(id int) (entities.ProductResponseFormat, error)
-	CreateProduct(user entities.Products) error
-	UpdateProduct(user entities.Products, id int) error
+	CreateProduct(product entities.Products) error
+	UpdateProduct(product entities.Products, id int) error
 	DeleteProduct(id int) error
 }

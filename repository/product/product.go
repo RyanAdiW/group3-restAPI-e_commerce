@@ -62,3 +62,30 @@ func (pr *productRepository) GetProductById(id int) (entities.ProductResponseFor
 	}
 	return product, nil
 }
+
+// 3. create product
+func (pr *productRepository) CreateProduct(product entities.Products) error {
+	_, err := pr.db.Exec(`INSERT INTO products(id_user, id_product_category, name, description, price, quantity, url_photo)
+	VALUES(?,?,?,?,?,?)`, product.Id_user, product.Id_product_category, product.Name, product.Description, product.Price, product.Quantity, product.Url_photo)
+	return err
+}
+
+// 4. update product
+func (pr *productRepository) UpdateProduct(product entities.Products, id int) error {
+	res, err := pr.db.Exec(`UPDATE products SET id_product_category=?, name=?, description=?, price=? quantity=? url_photo=? WHERE id=?`, product.Id_product_category, product.Name, product.Description, product.Price, product.Quantity, product.Url_photo, id)
+	row, _ := res.RowsAffected()
+	if row == 0 {
+		return fmt.Errorf("id not found")
+	}
+	return err
+}
+
+// 5. Delete product
+func (pr *productRepository) DeleteProduct(id int) error {
+	res, err := pr.db.Exec("DELETE FROM products WHERE id=?", id)
+	row, _ := res.RowsAffected()
+	if row == 0 {
+		return fmt.Errorf("id not found")
+	}
+	return err
+}
