@@ -29,7 +29,7 @@ func (pr *productRepository) GetProducts() ([]entities.ProductResponseFormat, er
 	var products []entities.ProductResponseFormat
 	for result.Next() {
 		var product entities.ProductResponseFormat
-		err := result.Scan(&product.Id, &product.Id_user, &product.Username, &product.Id_product_category, &product.Name_category, &product.Name, &product.Description, &product.Description, &product.Price, &product.Quantity, &product.Url_photo)
+		err := result.Scan(&product.Id, &product.Id_user, &product.Username, &product.Id_product_category, &product.Name_category, &product.Name, &product.Description, &product.Price, &product.Quantity, &product.Url_photo)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ func (pr *productRepository) GetProductById(id int) (entities.ProductResponseFor
 	}
 
 	var product entities.ProductResponseFormat
-	errScan := result.Scan(&product.Id, &product.Id_user, &product.Username, &product.Id_product_category, &product.Name_category, &product.Name, &product.Description, &product.Description, &product.Price, &product.Quantity, &product.Url_photo)
+	errScan := result.Scan(&product.Id, &product.Id_user, &product.Username, &product.Id_product_category, &product.Name_category, &product.Name, &product.Description, &product.Price, &product.Quantity, &product.Url_photo)
 	if err != nil {
 		return entities.ProductResponseFormat{}, errScan
 	}
@@ -66,13 +66,13 @@ func (pr *productRepository) GetProductById(id int) (entities.ProductResponseFor
 // 3. create product
 func (pr *productRepository) CreateProduct(product entities.Products) error {
 	_, err := pr.db.Exec(`INSERT INTO products(id_user, id_product_category, name, description, price, quantity, url_photo)
-	VALUES(?,?,?,?,?,?)`, product.Id_user, product.Id_product_category, product.Name, product.Description, product.Price, product.Quantity, product.Url_photo)
+	VALUES(?,?,?,?,?,?,?)`, product.Id_user, product.Id_product_category, product.Name, product.Description, product.Price, product.Quantity, product.Url_photo)
 	return err
 }
 
 // 4. update product
 func (pr *productRepository) UpdateProduct(product entities.Products, id int) error {
-	res, err := pr.db.Exec(`UPDATE products SET id_product_category=?, name=?, description=?, price=? quantity=? url_photo=? WHERE id=?`, product.Id_product_category, product.Name, product.Description, product.Price, product.Quantity, product.Url_photo, id)
+	res, err := pr.db.Exec(`UPDATE products SET id_product_category=?, name=?, description=?, price=?, quantity=?, url_photo=? WHERE id=?`, product.Id_product_category, product.Name, product.Description, product.Price, product.Quantity, product.Url_photo, id)
 	row, _ := res.RowsAffected()
 	if row == 0 {
 		return fmt.Errorf("id not found")

@@ -26,9 +26,9 @@ func RegisterPath(
 	e.DELETE("/users/:id", userController.DeleteUserController(), middlewares.JWTMiddleware())
 
 	// product
-	e.GET("/users", productController.GetProductsController())
+	e.GET("/products", productController.GetProductsController())
 	e.POST("/products", productController.CreateProductController(), middlewares.JWTMiddleware())
-	e.GET("/users/:id", productController.GetByIdController())
-	e.PUT("/users/:id", productController.UpdateProductController(), middlewares.JWTMiddleware())
-	e.DELETE("/users/:id", productController.DeleteProductController(), middlewares.JWTMiddleware())
+	e.GET("/products/:id", productController.GetByIdController())
+	e.PUT("/products/:id", productController.UpdateProductController(), middlewares.JWTMiddleware())
+	e.DELETE("/products/:id", productController.DeleteProductController(), middlewares.JWTMiddleware())
 }

@@ -1,6 +1,7 @@
 package product
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -77,6 +78,7 @@ func (pc ProductController) CreateProductController() echo.HandlerFunc {
 		// post product to database
 		err := pc.repository.CreateProduct(product)
 		if err != nil {
+			fmt.Println(err)
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create data"))
 		}
 
