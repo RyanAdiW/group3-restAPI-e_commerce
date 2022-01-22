@@ -33,13 +33,6 @@ func (pr *productRepository) GetProducts(idUser int) ([]entities.ProductResponse
 		WHERE id_user=%d`, idUser)
 	}
 
-	// result, err := pr.db.Query(`
-	// SELECT p.id as id_product, u.id as id_user, u.username, pc.id as id_product_category,
-	// pc.name_category, p.name, p.description, p.price, p.quantity, p.url_photo
-	// FROM products p
-	// INNER JOIN users as u ON (p.id_user = u.id)
-	// INNER JOIN product_category as pc ON (p.id_product_category = pc.id)`)
-
 	result, err := pr.db.Query(query)
 	if err != nil {
 		return nil, err
