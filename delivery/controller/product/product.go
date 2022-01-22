@@ -45,9 +45,9 @@ func (pc ProductController) GetProductsController() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
 		}
 
-		if len(products) == 0 {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
-		}
+		// if len(products) == 0 && uid != "0" {
+		// 	return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+		// }
 
 		return c.JSON(http.StatusOK, response.SuccessOperation("success", "success get all products", products))
 	}
