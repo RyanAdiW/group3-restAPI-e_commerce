@@ -5,7 +5,7 @@ import (
 )
 
 type ProductRepository interface {
-	GetProducts() ([]entities.ProductResponseFormat, error)
+	GetProducts(idUser int) ([]entities.ProductResponseFormat, error)
 	GetProductById(id int) (entities.ProductResponseFormat, error)
 	CreateProduct(product entities.Products) error
 	UpdateProduct(product entities.Products, id int) error

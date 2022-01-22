@@ -24,12 +24,31 @@ func NewProductController(product productRepo.ProductRepository) *ProductControl
 // 1. get all products controller
 func (pc ProductController) GetProductsController() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// filter by id_user
+		uid := c.QueryParam("uid")
+
+		// default value for user id
+		if uid == "" {
+			uid = "0"
+		}
+
+		idUser, err := strconv.Atoi(uid)
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id_user"))
+		}
+
 		// get all products from database
-		products, err := pc.repository.GetProducts()
+		products, err := pc.repository.GetProducts(idUser)
 
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
 		}
+
+		if len(products) == 0 {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+		}
+
 		return c.JSON(http.StatusOK, response.SuccessOperation("success", "success get all products", products))
 	}
 }
