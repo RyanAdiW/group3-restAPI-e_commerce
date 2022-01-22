@@ -2,7 +2,10 @@ package route
 
 import (
 	"sirclo/groupproject/restapi/delivery/controller/auth"
+	"sirclo/groupproject/restapi/delivery/controller/product"
+	"sirclo/groupproject/restapi/delivery/controller/productCategory"
 	"sirclo/groupproject/restapi/delivery/controller/user"
+
 	middlewares "sirclo/groupproject/restapi/delivery/middleware"
 
 	"github.com/labstack/echo/v4"
@@ -11,7 +14,9 @@ import (
 func RegisterPath(
 	e *echo.Echo,
 	loginController *auth.AuthController,
-	userController *user.UserController) {
+	userController *user.UserController,
+	productController *product.ProductController,
+	productCategoryController *productCategory.ProductCategoryController) {
 
 	// login
 	e.POST("/login", loginController.LoginUserNameController())
@@ -22,4 +27,13 @@ func RegisterPath(
 	e.PUT("/users/:id", userController.UpdateUserController(), middlewares.JWTMiddleware())
 	e.DELETE("/users/:id", userController.DeleteUserController(), middlewares.JWTMiddleware())
 
+	// product
+	e.GET("/products", productController.GetProductsController())
+	e.POST("/products", productController.CreateProductController(), middlewares.JWTMiddleware())
+	e.GET("/products/:id", productController.GetByIdController())
+	e.PUT("/products/:id", productController.UpdateProductController(), middlewares.JWTMiddleware())
+	e.DELETE("/products/:id", productController.DeleteProductController(), middlewares.JWTMiddleware())
+
+	// product category
+	e.GET("/productcategory", productCategoryController.GetProductCategoryController(), middlewares.JWTMiddleware())
 }
