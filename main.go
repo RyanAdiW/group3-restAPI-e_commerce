@@ -6,9 +6,11 @@ import (
 	"sirclo/groupproject/restapi/delivery/route"
 
 	_authController "sirclo/groupproject/restapi/delivery/controller/auth"
+	_productController "sirclo/groupproject/restapi/delivery/controller/product"
 	_userController "sirclo/groupproject/restapi/delivery/controller/user"
 
 	_authRepo "sirclo/groupproject/restapi/repository/auth"
+	_productRepo "sirclo/groupproject/restapi/repository/product"
 	_userRepo "sirclo/groupproject/restapi/repository/user"
 
 	"github.com/labstack/echo/v4"
@@ -24,17 +26,19 @@ func main() {
 	defer db.Close()
 
 	// initialize model
-	userRepo := _userRepo.NewUserReposiroty(db)
 	authRepo := _authRepo.NewAuthRepository(db)
+	userRepo := _userRepo.NewUserReposiroty(db)
+	productRepo := _productRepo.NewProductRepositpry(db)
 
 	// initialize controller
-	userController := _userController.NewUserController(userRepo)
 	authController := _authController.NewAuthController(authRepo)
+	userController := _userController.NewUserController(userRepo)
+	productController := _productController.NewProductController(productRepo)
 
 	// create new echo
 	e := echo.New()
 
-	route.RegisterPath(e, authController, userController)
+	route.RegisterPath(e, authController, userController, productController)
 
 	// start the server, and log if it fails
 	e.Logger.Fatal(e.Start(":8080"))
