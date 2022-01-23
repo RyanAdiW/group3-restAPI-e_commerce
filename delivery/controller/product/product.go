@@ -9,16 +9,18 @@ import (
 	middlewares "sirclo/groupproject/restapi/delivery/middleware"
 	"sirclo/groupproject/restapi/entities"
 	productRepo "sirclo/groupproject/restapi/repository/product"
+	userRepo "sirclo/groupproject/restapi/repository/user"
 
 	"github.com/labstack/echo/v4"
 )
 
 type ProductController struct {
-	repository productRepo.ProductRepository
+	productRepo productRepo.ProductRepository
+	userRepo    userRepo.UserRepository
 }
 
-func NewProductController(product productRepo.ProductRepository) *ProductController {
-	return &ProductController{repository: product}
+func NewProductController(product productRepo.ProductRepository, user userRepo.UserRepository) *ProductController {
+	return &ProductController{productRepo: product, userRepo: user}
 }
 
 // 1. get all products controller
@@ -39,15 +41,24 @@ func (pc ProductController) GetProductsController() echo.HandlerFunc {
 		}
 
 		// get all products from database
-		products, err := pc.repository.GetProducts(idUser)
+		products, err := pc.productRepo.GetProducts(idUser)
 
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
 		}
 
-		if len(products) == 0 {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+		// if use query param
+		if uid != "0" {
+			// check user id exist in table user or not
+			_, errScan := pc.userRepo.GetUserById(idUser)
+			if errScan != nil {
+				return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
+			}
 		}
+
+		// if len(products) == 0 && uid != "0" {
+		// 	return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+		// }
 
 		return c.JSON(http.StatusOK, response.SuccessOperation("success", "success get all products", products))
 	}
@@ -62,7 +73,7 @@ func (pc ProductController) GetByIdController() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
 		}
 		// get product from database based on id
-		product, err := pc.repository.GetProductById(productId)
+		product, err := pc.productRepo.GetProductById(productId)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
 		}
@@ -95,7 +106,7 @@ func (pc ProductController) CreateProductController() echo.HandlerFunc {
 			Id_user:             userId,
 		}
 		// post product to database
-		err := pc.repository.CreateProduct(product)
+		err := pc.productRepo.CreateProduct(product)
 		if err != nil {
 			fmt.Println(err)
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create data"))
@@ -114,7 +125,7 @@ func (pc ProductController) UpdateProductController() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
 		}
 		// get product based on id to get user id
-		product, err := pc.repository.GetProductById(productId)
+		product, err := pc.productRepo.GetProductById(productId)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to get product by id"))
 		}
@@ -133,7 +144,7 @@ func (pc ProductController) UpdateProductController() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to bind data"))
 		}
 		// update product to database
-		errRepo := pc.repository.UpdateProduct(productBind, productId)
+		errRepo := pc.productRepo.UpdateProduct(productBind, productId)
 		if errRepo != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
 		}
@@ -151,7 +162,7 @@ func (pc ProductController) DeleteProductController() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
 		}
 		// get product based on id to get user id
-		product, err := pc.repository.GetProductById(productId)
+		product, err := pc.productRepo.GetProductById(productId)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to get product by id"))
 		}
@@ -165,7 +176,7 @@ func (pc ProductController) DeleteProductController() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
 		}
 		// delete product from database based on id
-		errRepo := pc.repository.DeleteProduct(productId)
+		errRepo := pc.productRepo.DeleteProduct(productId)
 		if errRepo != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
 		}

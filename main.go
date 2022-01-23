@@ -39,7 +39,7 @@ func main() {
 	// initialize controller
 	authController := _authController.NewAuthController(authRepo)
 	userController := _userController.NewUserController(userRepo)
-	productController := _productController.NewProductController(productRepo)
+	productController := _productController.NewProductController(productRepo, userRepo)
 	productCategoryController := _productCategoryController.NewProductCategoryController(productCategoryRepo)
 	cartController := _cartController.NewCartController(cartRepo)
 
