@@ -18,6 +18,7 @@ import (
 	_userRepo "sirclo/groupproject/restapi/repository/user"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -46,6 +47,7 @@ func main() {
 	// create new echo
 	e := echo.New()
 
+	e.Pre(middleware.RemoveTrailingSlash(), middleware.CORS())
 	route.RegisterPath(e, authController, userController, productController, productCategoryController, cartController)
 
 	// start the server, and log if it fails
