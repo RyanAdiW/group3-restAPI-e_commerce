@@ -6,25 +6,26 @@ import (
 	"sirclo/groupproject/restapi/entities"
 )
 
-type cartRepository struct {
+type CartRepository struct {
 	db *sql.DB
 }
 
-func NewCartReposiroty(db *sql.DB) *cartRepository {
-	return &cartRepository{db: db}
+func NewCartRepository(db *sql.DB) *CartRepository {
+	return &CartRepository{db: db}
 }
 
-func (cr *cartRepository) Get(id_user int) ([]entities.CartResponseFormat, error) {
-	result, err := cr.db.Query(`SELECT c.id, c.id_user, c.quantity, p.id, p.product_category, p.name, p.description, p.price, p.quantity, u.name , p.url_photo FROM cart as c
+func (cr *CartRepository) Get(id_user int) ([]entities.CartResponseFormat, error) {
+	result, err := cr.db.Query(`SELECT c.id, c.id_user, c.quantity, p.id, pc.name_category, p.name, p.description, p.price, p.quantity, u.name , p.url_photo FROM cart as c
 	INNER JOIN products as p ON c.id_product = p.id
-	INNER JOIN users as u ON p.id_user = u.id WHERE c.id_user =?`, id_user)
+	INNER JOIN users as u ON p.id_user = u.id
+	INNER JOIN product_category as pc ON p.id_product_category = pc.id WHERE c.id_user =?`, id_user)
 	if err != nil {
 		return nil, err
 	}
 	var carts []entities.CartResponseFormat
 	for result.Next() {
 		var cart entities.CartResponseFormat
-		err := result.Scan(&cart.Id, &cart.Id_user, &cart.Quantity, &cart.Product.Id, &cart.Product.Product_category, &cart.Product.Name, &cart.Product.Description, &cart.Product.Price, &cart.Product.Quantity, &cart.Product.User_owner, &cart.Product.Url_photo)
+		err := result.Scan(&cart.Id, &cart.Id_user, &cart.Quantity, &cart.Product.Id, &cart.Product.Name_category, &cart.Product.Name, &cart.Product.Description, &cart.Product.Price, &cart.Product.Quantity, &cart.Product.Username, &cart.Product.Url_photo)
 		if err != nil {
 			return nil, err
 		}
@@ -33,12 +34,12 @@ func (cr *cartRepository) Get(id_user int) ([]entities.CartResponseFormat, error
 	return carts, nil
 }
 
-func (cr *cartRepository) Create(cart entities.Cart) error {
+func (cr *CartRepository) Create(cart entities.Cart) error {
 	_, err := cr.db.Exec("INSERT INTO cart(id_user, id_product, quantity) VALUES(?,?,?)", cart.Id_user, cart.Id_product, cart.Quantity)
 	return err
 }
 
-func (cr *cartRepository) Update(cart entities.Cart, id int) error {
+func (cr *CartRepository) Update(cart entities.Cart, id int) error {
 	res, err := cr.db.Exec("UPDATE cart SET quantity=? WHERE id=?", cart.Quantity, id)
 	row, _ := res.RowsAffected()
 	if row == 0 {
@@ -47,7 +48,7 @@ func (cr *cartRepository) Update(cart entities.Cart, id int) error {
 	return err
 }
 
-func (cr *cartRepository) Delete(id int) error {
+func (cr *CartRepository) Delete(id int) error {
 	res, err := cr.db.Exec("DELETE FROM cart WHERE id=?", id)
 	row, _ := res.RowsAffected()
 	if row == 0 {
