@@ -12,6 +12,7 @@ import (
 	"sirclo/groupproject/restapi/entities"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -277,6 +278,226 @@ func TestGetUser(t *testing.T) {
 		}
 
 	})
+}
+
+// 3. test update user
+func TestUpdateUser(t *testing.T) {
+	var (
+		globalToken, errCreateToken = middlewares.CreateToken(2, "admin")
+	)
+	t.Run("success update user", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":     "alta",
+			"email":    "alta@mail.com",
+			"password": "123456",
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		userController := NewUserController(mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.UpdateUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusOK, res.Code)
+			assert.Equal(t, "success", response.Status)
+			assert.Equal(t, "success update user", response.Message)
+		}
+
+	})
+	t.Run("failed getUserName from token", func(t *testing.T) {
+		e := echo.New()
+		token, err := middlewares.CreateToken(2, "")
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":     "alta",
+			"email":    "alta@mail.com",
+			"password": "12345",
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		userController := NewUserController(mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.UpdateUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusUnauthorized, res.Code)
+			assert.Equal(t, "unauthorized", response.Status)
+			assert.Equal(t, "unauthorized access", response.Message)
+		}
+
+	})
+	t.Run("failed convert id", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":     "alta",
+			"email":    "alta@mail.com",
+			"password": "12345",
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("a")
+
+		userController := NewUserController(mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.UpdateUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to convert id", response.Message)
+		}
+
+	})
+	t.Run("failed to bind data", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":     "alta",
+			"email":    "alta@mail.com",
+			"password": 12345,
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		userController := NewUserController(mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.UpdateUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to bind data", response.Message)
+		}
+
+	})
+	t.Run("error from repository", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"title":     "bukuku",
+			"author":    "agung",
+			"publisher": "jaya",
+			"isbn":      "A1",
+			"price":     20000,
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		userController := NewUserController(mockErrorUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.UpdateUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "data not found", response.Message)
+		}
+
+	})
+
 }
 
 type mockUserRepository struct{}
