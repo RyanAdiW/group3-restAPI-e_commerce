@@ -95,3 +95,26 @@ func (cc CartController) Update() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success update cart"))
 	}
 }
+
+func (cc CartController) Delete() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		_, err := middlewares.GetUserName(c)
+
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
+		}
+
+		// get id from param
+		cartId, errConv := strconv.Atoi(c.Param("id"))
+		if errConv != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
+		}
+		// delete user based on id from database
+		errDelete := cc.repository.Delete(cartId)
+		if errDelete != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+		}
+
+		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "delete success"))
+	}
+}

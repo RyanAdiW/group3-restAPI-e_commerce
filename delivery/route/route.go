@@ -40,6 +40,7 @@ func RegisterPath(
 	e.GET("/cart", cartController.Get(), middlewares.JWTMiddleware())
 	e.POST("/cart", cartController.Create(), middlewares.JWTMiddleware())
 	e.PUT("/cart/:id", cartController.Update(), middlewares.JWTMiddleware())
+	e.DELETE("/cart/:id", cartController.Delete(), middlewares.JWTMiddleware())
 
 	// product category
 	e.GET("/productcategory", productCategoryController.GetProductCategoryController(), middlewares.JWTMiddleware())
