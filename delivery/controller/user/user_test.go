@@ -500,6 +500,161 @@ func TestUpdateUser(t *testing.T) {
 
 }
 
+// 4. test delete user by id
+func TestDeleteUser(t *testing.T) {
+	var (
+		globalToken, errCreateToken = middlewares.CreateToken(2, "admin")
+	)
+	t.Run("success delete", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		userController := NewUserController(mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.DeleteUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusOK, res.Code)
+			assert.Equal(t, "success", response.Status)
+			assert.Equal(t, "delete success", response.Message)
+		}
+
+	})
+	t.Run("failed to getUserName from token", func(t *testing.T) {
+		e := echo.New()
+		token, err := middlewares.CreateToken(2, "")
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		userController := NewUserController(mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.DeleteUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusUnauthorized, res.Code)
+			assert.Equal(t, "unauthorized", response.Status)
+			assert.Equal(t, "unauthorized access", response.Message)
+		}
+
+	})
+	t.Run("failed to convert id", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("a")
+
+		userController := NewUserController(mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.DeleteUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to convert id", response.Message)
+		}
+
+	})
+	t.Run("error from repository", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		context := e.NewContext(req, res)
+		context.SetPath("/users")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		userController := NewUserController(mockErrorUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(userController.DeleteUserController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "data not found", response.Message)
+		}
+
+	})
+}
+
 type mockUserRepository struct{}
 
 func (m mockUserRepository) CreateUser(entities.Users) error {
