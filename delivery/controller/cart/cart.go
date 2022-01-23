@@ -2,6 +2,7 @@ package cart
 
 import (
 	"net/http"
+	"strconv"
 
 	response "sirclo/groupproject/restapi/delivery/common"
 	middlewares "sirclo/groupproject/restapi/delivery/middleware"
@@ -63,5 +64,34 @@ func (cc CartController) Create() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success create user cart"))
+	}
+}
+
+func (cc CartController) Update() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		_, err := middlewares.GetUserName(c)
+
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
+		}
+
+		// get id from param
+		cartId, errConv := strconv.Atoi(c.Param("id"))
+		if errConv != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
+		}
+		// binding data
+		cart := entities.Cart{}
+		if errBind := c.Bind(&cart); errBind != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to bind data"))
+		}
+
+		// update user based on id to database
+		errUpdate := cc.repository.Update(cart, cartId)
+		if errUpdate != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+		}
+
+		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success update cart"))
 	}
 }
