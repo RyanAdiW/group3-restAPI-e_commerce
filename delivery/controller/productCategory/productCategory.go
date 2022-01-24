@@ -30,10 +30,6 @@ func (pcr ProductCategoryController) GetProductCategoryController() echo.Handler
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
 		}
 
-		if len(products) == 0 {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
-		}
-
 		return c.JSON(http.StatusOK, response.SuccessOperation("success", "success get all products", products))
 	}
 }
