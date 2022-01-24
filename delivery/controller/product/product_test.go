@@ -983,18 +983,3 @@ func (m mockUserRepository) UpdateUser(user entities.Users, id int) error {
 func (m mockUserRepository) DeleteUser(id int) error {
 	return nil
 }
-
-type mockErrorUserRepository struct{}
-
-func (m mockErrorUserRepository) CreateUser(entities.Users) error {
-	return fmt.Errorf("error")
-}
-func (m mockErrorUserRepository) GetUserById(id int) (entities.UserResponseFormat, error) {
-	return entities.UserResponseFormat{}, fmt.Errorf("error")
-}
-func (m mockErrorUserRepository) UpdateUser(user entities.Users, id int) error {
-	return fmt.Errorf("error")
-}
-func (m mockErrorUserRepository) DeleteUser(id int) error {
-	return fmt.Errorf("error")
-}
