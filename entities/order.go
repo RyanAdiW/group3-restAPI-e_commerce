@@ -11,10 +11,13 @@ type Order struct {
 }
 
 type OrderResponseFormat struct {
-	Id               int              `json:"id" form:"id"`
-	Id_cart          []int            `json:"id_cart" form:"id_cart"`
-	Address_delivery Address_delivery `json:"address_delivery" form:"address_delivery"`
-	Credit_card      Credit_card      `json:"credit_card" form:"credit_card"`
+	Id          int `json:"id" form:"id"`
+	Id_user     int `json:"id_user" form:"id_user"`
+	Product     ProductResponseFormat
+	Quantity    int    `json:"quantity" form:"quantity"`
+	Total_price int    `json:"total_price" form:"total_price"`
+	Id_order    int    `json:"id_order" form:"id_order"`
+	Status      string `json:"status" form:"status"`
 }
 
 type Address_delivery struct {

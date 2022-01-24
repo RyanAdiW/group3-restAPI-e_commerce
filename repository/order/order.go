@@ -13,13 +13,30 @@ func NewOrderRepository(db *sql.DB) *OrderRepository {
 	return &OrderRepository{db: db}
 }
 
-func (or *OrderRepository) Get(id_user int) ([]entities.CartResponseFormat, error) {
+func (or *OrderRepository) Get(id_user int) ([]entities.OrderResponseFormat, error) {
 
-	return []entities.CartResponseFormat{}, nil
+	result, err := or.db.Query(`SELECT c.id, c.id_user, c.quantity, c.total_price, p.id, pc.name_category, p.name, p.description, p.price, p.quantity, u.name , p.url_photo, o.id, o.status FROM cart as c
+	INNER JOIN products as p ON c.id_product = p.id
+	INNER JOIN users as u ON p.id_user = u.id
+	INNER JOIN product_category as pc ON p.id_product_category = pc.id
+	INNER JOIN order_detail as od ON c.id = od.id_cart
+	INNER JOIN orders as o ON od.id_order = o.id WHERE c.id_user =? AND c.id IN (SELECT id_cart FROM order_detail as od INNER JOIN orders as o ON od.id_order = o.id WHERE o.status = "DONE" OR o.status = "CANCELLED")`, id_user)
+	if err != nil {
+		return nil, err
+	}
+	var orders []entities.OrderResponseFormat
+	for result.Next() {
+		var order entities.OrderResponseFormat
+		err := result.Scan(&order.Id, &order.Id_user, &order.Quantity, &order.Total_price, &order.Product.Id, &order.Product.Name_category, &order.Product.Name, &order.Product.Description, &order.Product.Price, &order.Product.Quantity, &order.Product.Username, &order.Product.Url_photo, &order.Id_order, &order.Status)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
 }
 
 func (or *OrderRepository) Create(order entities.Order) error {
-	//res, err := or.db.Exec("INSERT INTO order(id_user, status, total_price) VALUES(?,?,?)", order.Id_user, order.Status, order.Total_price)
 	res, err := or.db.Exec("INSERT INTO orders(id_user, status, total_price) VALUES(?,?,?)", order.Id_user, order.Status, order.Total_price)
 	if err != nil {
 		return err
@@ -40,12 +57,6 @@ func (or *OrderRepository) Create(order entities.Order) error {
 
 	return err
 }
-
-// func (or *OrderRepository) Create(order entities.Order) error {
-// 	_, err := or.db.Exec("INSERT INTO test(id_user, status, total_price) VALUES(?,?,?)", order.Id_user, order.Status, order.Total_price)
-// 	return err
-
-// }
 
 func (or *OrderRepository) Delete(id int) error {
 

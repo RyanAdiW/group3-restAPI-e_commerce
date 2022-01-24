@@ -19,6 +19,24 @@ func NewOrderController(order orderRepo.Order) *OrderController {
 	return &OrderController{repository: order}
 }
 
+func (oc OrderController) Get() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userId, err := middlewares.GetId("rahasia", c)
+
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
+		}
+
+		// get user from db
+		orders, err := oc.repository.Get(userId)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
+		}
+
+		return c.JSON(http.StatusOK, response.SuccessOperation("success", "success get user history order", orders))
+	}
+}
+
 func (oc OrderController) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// bind data
