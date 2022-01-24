@@ -17,6 +17,70 @@ import (
 )
 
 // 1. test get product
+func TestGetProduct(t *testing.T) {
+	t.Run("success get all products", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+
+		productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, productController.GetProductsController()(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, 200, res.Code)
+			assert.Equal(t, "success", response.Status)
+			assert.Equal(t, "success get all products", response.Message)
+		}
+
+	})
+	t.Run("failed to get product from repository", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		res := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+
+		productController := NewProductController(mockErrorProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, productController.GetProductsController()(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to fetch data", response.Message)
+
+		}
+
+	})
+
+}
 
 // 2. test create product
 func TestCreateProduct(t *testing.T) {
@@ -283,6 +347,535 @@ func TestGetById(t *testing.T) {
 			assert.Equal(t, "failed to fetch data", response.Message)
 		}
 	})
+}
+
+// 4. test update product by id
+func TestUpdateProduct(t *testing.T) {
+	var (
+		globalToken, errCreateToken = middlewares.CreateToken(1, "admin")
+	)
+	// t.Run("success update product", func(t *testing.T) {
+	// 	e := echo.New()
+	// 	token, err := globalToken, errCreateToken
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	requestBody, _ := json.Marshal(map[string]interface{}{
+	// 		"name":  "buku",
+	// 		"price": 30000,
+	// 		"stock": 5,
+	// 	})
+	// 	req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+	// 	req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+	// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// 	res := httptest.NewRecorder()
+	// 	context := e.NewContext(req, res)
+	// 	context.SetPath("/products")
+	// 	context.SetParamNames("id")
+	// 	context.SetParamValues("1")
+
+	// 	productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+	// 	type Responses struct {
+	// 		Code    string `json:"code"`
+	// 		Status  string `json:"status"`
+	// 		Message string `json:"message"`
+	// 	}
+	// 	if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.UpdateProductController())(context)) {
+	// 		bodyResponses := res.Body.String()
+	// 		var response Responses
+
+	// 		err := json.Unmarshal([]byte(bodyResponses), &response)
+	// 		if err != nil {
+	// 			assert.Error(t, err, "error")
+	// 		}
+
+	// 		assert.Equal(t, http.StatusOK, res.Code)
+	// 		assert.Equal(t, "success", response.Status)
+	// 		assert.Equal(t, "update success", response.Message)
+	// 	}
+
+	// })
+	t.Run("failed convert id", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":  "buku",
+			"price": 30000,
+			"stock": 5,
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("a")
+
+		productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.UpdateProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to convert id", response.Message)
+		}
+
+	})
+	// t.Run("failed to bind data", func(t *testing.T) {
+	// 	e := echo.New()
+	// 	token, err := globalToken, errCreateToken
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	requestBody, _ := json.Marshal(map[string]interface{}{
+	// 		"name":  "buku",
+	// 		"price": "30000",
+	// 		"stock": 5,
+	// 	})
+	// 	req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+	// 	req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+	// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// 	res := httptest.NewRecorder()
+	// 	context := e.NewContext(req, res)
+	// 	context.SetPath("/users")
+	// 	context.SetParamNames("id")
+	// 	context.SetParamValues("1")
+
+	// 	productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+	// 	type Responses struct {
+	// 		Code    string `json:"code"`
+	// 		Status  string `json:"status"`
+	// 		Message string `json:"message"`
+	// 	}
+	// 	if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.UpdateProductController())(context)) {
+	// 		bodyResponses := res.Body.String()
+	// 		var response Responses
+
+	// 		err := json.Unmarshal([]byte(bodyResponses), &response)
+	// 		if err != nil {
+	// 			assert.Error(t, err, "error")
+	// 		}
+
+	// 		assert.Equal(t, http.StatusBadRequest, res.Code)
+	// 		assert.Equal(t, "failed", response.Status)
+	// 		assert.Equal(t, "failed to bind data", response.Message)
+	// 	}
+
+	// })
+	t.Run("failed to get product by id", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":  "buku",
+			"price": 30000,
+			"stock": 5,
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		productController := NewProductController(mockErrorProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.UpdateProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to get product by id", response.Message)
+		}
+
+	})
+	t.Run("failed to get id from token", func(t *testing.T) {
+		e := echo.New()
+		token, err := middlewares.CreateToken(0, "admin")
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":  "buku",
+			"price": 30000,
+			"stock": 5,
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.UpdateProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusUnauthorized, res.Code)
+			assert.Equal(t, "unauthorized", response.Status)
+			assert.Equal(t, "unauthorized access", response.Message)
+		}
+
+	})
+	t.Run("user not belong to the product", func(t *testing.T) {
+		e := echo.New()
+		token, err := middlewares.CreateToken(1, "admin")
+		if err != nil {
+			panic(err)
+		}
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":  "buku",
+			"price": 30000,
+			"stock": 5,
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.UpdateProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusUnauthorized, res.Code)
+			assert.Equal(t, "unauthorized", response.Status)
+			assert.Equal(t, "unauthorized access", response.Message)
+		}
+
+	})
+	// t.Run("error update from repository", func(t *testing.T) {
+	// 	e := echo.New()
+	// 	token, err := globalToken, errCreateToken
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	requestBody, _ := json.Marshal(map[string]interface{}{
+	// 		"name":  "buku",
+	// 		"price": 30000,
+	// 		"stock": 5,
+	// 	})
+	// 	req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(requestBody))
+	// 	req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+	// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// 	res := httptest.NewRecorder()
+	// 	context := e.NewContext(req, res)
+	// 	context.SetPath("/products")
+	// 	context.SetParamNames("id")
+	// 	context.SetParamValues("1")
+
+	// 	productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+	// 	type Responses struct {
+	// 		Code    string `json:"code"`
+	// 		Status  string `json:"status"`
+	// 		Message string `json:"message"`
+	// 	}
+	// 	if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.UpdateProductController())(context)) {
+	// 		bodyResponses := res.Body.String()
+	// 		var response Responses
+
+	// 		err := json.Unmarshal([]byte(bodyResponses), &response)
+	// 		if err != nil {
+	// 			assert.Error(t, err, "error")
+	// 		}
+
+	// 		assert.Equal(t, http.StatusBadRequest, res.Code)
+	// 		assert.Equal(t, "failed", response.Status)
+	// 		assert.Equal(t, "data not found", response.Message)
+	// 	}
+
+	// })
+}
+
+// 5. test delete product
+func TestDeleteProduct(t *testing.T) {
+	var (
+		globalToken, errCreateToken = middlewares.CreateToken(2, "admin")
+	)
+	// t.Run("success delete product", func(t *testing.T) {
+	// 	e := echo.New()
+	// 	token, err := globalToken, errCreateToken
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	req := httptest.NewRequest(http.MethodDelete, "/", nil)
+	// 	req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+	// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// 	res := httptest.NewRecorder()
+	// 	context := e.NewContext(req, res)
+	// 	context.SetPath("/products")
+	// 	context.SetParamNames("id")
+	// 	context.SetParamValues("1")
+
+	// 	productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+	// 	type Responses struct {
+	// 		Code    string `json:"code"`
+	// 		Status  string `json:"status"`
+	// 		Message string `json:"message"`
+	// 	}
+	// 	if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.DeleteProductController())(context)) {
+	// 		bodyResponses := res.Body.String()
+	// 		var response Responses
+
+	// 		err := json.Unmarshal([]byte(bodyResponses), &response)
+	// 		if err != nil {
+	// 			assert.Error(t, err, "error")
+	// 		}
+
+	// 		assert.Equal(t, http.StatusOK, res.Code)
+	// 		assert.Equal(t, "success", response.Status)
+	// 		assert.Equal(t, "delete success", response.Message)
+	// 	}
+
+	// })
+	t.Run("failed convert id", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("a")
+
+		productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.DeleteProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to convert id", response.Message)
+		}
+
+	})
+	t.Run("failed to get product by id", func(t *testing.T) {
+		e := echo.New()
+		token, err := globalToken, errCreateToken
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		productController := NewProductController(mockErrorProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.DeleteProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusBadRequest, res.Code)
+			assert.Equal(t, "failed", response.Status)
+			assert.Equal(t, "failed to get product by id", response.Message)
+		}
+
+	})
+	t.Run("failed to get id from token", func(t *testing.T) {
+		e := echo.New()
+		token, err := middlewares.CreateToken(0, "admin")
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.DeleteProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusUnauthorized, res.Code)
+			assert.Equal(t, "unauthorized", response.Status)
+			assert.Equal(t, "unauthorized access", response.Message)
+		}
+
+	})
+	t.Run("user not belong to the product", func(t *testing.T) {
+		e := echo.New()
+		token, err := middlewares.CreateToken(1, "admin")
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/products")
+		context.SetParamNames("id")
+		context.SetParamValues("1")
+
+		productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+		type Responses struct {
+			Code    string `json:"code"`
+			Status  string `json:"status"`
+			Message string `json:"message"`
+		}
+		if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.DeleteProductController())(context)) {
+			bodyResponses := res.Body.String()
+			var response Responses
+
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+
+			assert.Equal(t, http.StatusUnauthorized, res.Code)
+			assert.Equal(t, "unauthorized", response.Status)
+			assert.Equal(t, "unauthorized access", response.Message)
+		}
+
+	})
+	// t.Run("error delete from repository", func(t *testing.T) {
+	// 	e := echo.New()
+	// 	token, err := globalToken, errCreateToken
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	req := httptest.NewRequest(http.MethodDelete, "/", nil)
+	// 	req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+	// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// 	res := httptest.NewRecorder()
+	// 	context := e.NewContext(req, res)
+	// 	context.SetPath("/products")
+	// 	context.SetParamNames("id")
+	// 	context.SetParamValues("1")
+	// 	productController := NewProductController(mockProductRepository{}, mockUserRepository{})
+
+	// 	type Responses struct {
+	// 		Code    string `json:"code"`
+	// 		Status  string `json:"status"`
+	// 		Message string `json:"message"`
+	// 	}
+	// 	if assert.NoError(t, middleware.JWT([]byte("rahasia"))(productController.DeleteProductController())(context)) {
+	// 		bodyResponses := res.Body.String()
+	// 		var response Responses
+
+	// 		err := json.Unmarshal([]byte(bodyResponses), &response)
+	// 		if err != nil {
+	// 			assert.Error(t, err, "error")
+	// 		}
+
+	// 		assert.Equal(t, http.StatusBadRequest, res.Code)
+	// 		assert.Equal(t, "failed", response.Status)
+	// 		assert.Equal(t, "data not found", response.Message)
+	// 	}
+
+	// })
 }
 
 // mock product

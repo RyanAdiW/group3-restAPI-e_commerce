@@ -132,7 +132,7 @@ func (pc ProductController) UpdateProductController() echo.HandlerFunc {
 		// get user id from login token
 		userId, errToken := middlewares.GetId("rahasia", c)
 		if errToken != nil {
-			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "Unauthorized access"))
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
 		}
 		// check if the product belong to the user
 		if product.Id_user != userId {
