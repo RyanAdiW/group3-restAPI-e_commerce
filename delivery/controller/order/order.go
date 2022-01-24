@@ -2,6 +2,7 @@ package order
 
 import (
 	"net/http"
+	"strconv"
 
 	response "sirclo/groupproject/restapi/delivery/common"
 	middlewares "sirclo/groupproject/restapi/delivery/middleware"
@@ -27,7 +28,7 @@ func (oc OrderController) Get() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
 		}
 
-		// get user from db
+		// get order from db
 		orders, err := oc.repository.Get(userId)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to fetch data"))
@@ -75,12 +76,41 @@ func (oc OrderController) Create() echo.HandlerFunc {
 			Id_cart:          orderRequest.Id_cart,
 		}
 
-		// create user to database
+		// create order to database
 		err := oc.repository.Create(order)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create order"))
 		}
 
 		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success create order"))
+	}
+}
+
+func (oc OrderController) Update() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		_, err := middlewares.GetUserName(c)
+
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
+		}
+
+		// get id from param
+		orderId, errConv := strconv.Atoi(c.Param("id"))
+		if errConv != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to convert id"))
+		}
+		// binding data
+		order := entities.Order{}
+		if errBind := c.Bind(&order); errBind != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to bind data"))
+		}
+
+		// update order based on id to database
+		errUpdate := oc.repository.Update(order, orderId)
+		if errUpdate != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "data not found"))
+		}
+
+		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success update order status"))
 	}
 }

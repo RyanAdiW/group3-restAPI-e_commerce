@@ -2,6 +2,7 @@ package order
 
 import (
 	"database/sql"
+	"fmt"
 	"sirclo/groupproject/restapi/entities"
 )
 
@@ -58,7 +59,11 @@ func (or *OrderRepository) Create(order entities.Order) error {
 	return err
 }
 
-func (or *OrderRepository) Delete(id int) error {
-
-	return nil
+func (or *OrderRepository) Update(order entities.Order, id int) error {
+	res, err := or.db.Exec("UPDATE orders SET status=? WHERE id=?", order.Status, id)
+	row, _ := res.RowsAffected()
+	if row == 0 {
+		return fmt.Errorf("id not found")
+	}
+	return err
 }

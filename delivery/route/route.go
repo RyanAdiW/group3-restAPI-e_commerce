@@ -50,4 +50,5 @@ func RegisterPath(
 	// order
 	e.POST("/order", orderController.Create(), middlewares.JWTMiddleware())
 	e.GET("/order", orderController.Get(), middlewares.JWTMiddleware())
+	e.PUT("/order/:id", orderController.Update(), middlewares.JWTMiddleware())
 }
