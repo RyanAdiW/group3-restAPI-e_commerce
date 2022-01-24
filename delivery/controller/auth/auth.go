@@ -40,14 +40,19 @@ func (ac AuthController) LoginUserNameController() echo.HandlerFunc {
 
 		// get token from login credential
 		token, err := ac.repository.LoginUserName(loginRequest.Username, hashedPassword)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, common.BadRequest("unauthorized", "user not found"))
+		}
 
+		uid, _ := ac.repository.GetIdByUsername(loginRequest.Username)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest("unauthorized", "user not found"))
 		}
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"token": token,
-			"name":  loginRequest.Username,
+			"token":     token,
+			"user_name": loginRequest.Username,
+			"user_id":   uid,
 		})
 	}
 }
