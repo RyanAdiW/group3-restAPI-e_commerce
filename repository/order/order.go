@@ -16,7 +16,7 @@ func NewOrderRepository(db *sql.DB) *OrderRepository {
 
 func (or *OrderRepository) Get(id_user int) ([]entities.OrderResponseFormat, error) {
 
-	result, err := or.db.Query(`SELECT c.id, c.id_user, c.quantity, c.total_price, p.id, pc.name_category, p.name, p.description, p.price, p.quantity, u.name , p.url_photo, o.id, o.status FROM cart as c
+	result, err := or.db.Query(`SELECT c.id, c.id_user, c.quantity, c.total_price, p.id, pc.name_category, p.name, p.description, p.price, p.quantity, u.name , p.url_photo, o.id, o.status, od.order_date FROM cart as c
 	INNER JOIN products as p ON c.id_product = p.id
 	INNER JOIN users as u ON p.id_user = u.id
 	INNER JOIN product_category as pc ON p.id_product_category = pc.id
@@ -28,7 +28,7 @@ func (or *OrderRepository) Get(id_user int) ([]entities.OrderResponseFormat, err
 	var orders []entities.OrderResponseFormat
 	for result.Next() {
 		var order entities.OrderResponseFormat
-		err := result.Scan(&order.Id, &order.Id_user, &order.Quantity, &order.Total_price, &order.Product.Id, &order.Product.Name_category, &order.Product.Name, &order.Product.Description, &order.Product.Price, &order.Product.Quantity, &order.Product.Username, &order.Product.Url_photo, &order.Id_order, &order.Status)
+		err := result.Scan(&order.Id, &order.Id_user, &order.Quantity, &order.Total_price, &order.Product.Id, &order.Product.Name_category, &order.Product.Name, &order.Product.Description, &order.Product.Price, &order.Product.Quantity, &order.Product.Username, &order.Product.Url_photo, &order.Id_order, &order.Status, &order.Order_date)
 		if err != nil {
 			return nil, err
 		}

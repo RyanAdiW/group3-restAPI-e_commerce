@@ -18,6 +18,7 @@ type OrderResponseFormat struct {
 	Total_price int    `json:"total_price" form:"total_price"`
 	Id_order    int    `json:"id_order" form:"id_order"`
 	Status      string `json:"status" form:"status"`
+	Order_date  string `json:"order_date" form:"order_date"`
 }
 
 type Address_delivery struct {
