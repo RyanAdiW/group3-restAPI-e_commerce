@@ -3,6 +3,7 @@ package route
 import (
 	"sirclo/groupproject/restapi/delivery/controller/auth"
 	"sirclo/groupproject/restapi/delivery/controller/cart"
+	"sirclo/groupproject/restapi/delivery/controller/order"
 	"sirclo/groupproject/restapi/delivery/controller/product"
 	"sirclo/groupproject/restapi/delivery/controller/productCategory"
 	"sirclo/groupproject/restapi/delivery/controller/user"
@@ -18,7 +19,8 @@ func RegisterPath(
 	userController *user.UserController,
 	productController *product.ProductController,
 	productCategoryController *productCategory.ProductCategoryController,
-	cartController *cart.CartController) {
+	cartController *cart.CartController,
+	orderController *order.OrderController) {
 
 	// login
 	e.POST("/login", loginController.LoginUserNameController())
@@ -44,4 +46,7 @@ func RegisterPath(
 
 	// product category
 	e.GET("/productcategory", productCategoryController.GetProductCategoryController(), middlewares.JWTMiddleware())
+
+	// order
+	e.POST("/order", orderController.Create(), middlewares.JWTMiddleware())
 }
