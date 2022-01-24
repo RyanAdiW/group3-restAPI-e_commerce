@@ -51,10 +51,18 @@ func (cc CartController) Create() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
 		}
 
+		product, errGetProductPrice := cc.repository.GetProductPrice(cartRequest.Id_product)
+		if errGetProductPrice != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to get product price"))
+		}
+
+		totalPrice := product.Price * cartRequest.Quantity
+
 		cart := entities.Cart{
-			Id_user:    userId,
-			Id_product: cartRequest.Id_product,
-			Quantity:   cartRequest.Quantity,
+			Id_user:     userId,
+			Id_product:  cartRequest.Id_product,
+			Quantity:    cartRequest.Quantity,
+			Total_price: totalPrice,
 		}
 
 		// create user to database
