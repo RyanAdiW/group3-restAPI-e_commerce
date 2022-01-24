@@ -51,3 +51,20 @@ func (a *authRepository) GetPasswordByUsername(userName string) (string, error) 
 	password := user.Password
 	return password, nil
 }
+
+func (a *authRepository) GetIdByUsername(userName string) (int, error) {
+	result, err := a.db.Query("SELECT id FROM users WHERE username=?", userName)
+	if err != nil {
+		return 0, err
+	}
+	if isExist := result.Next(); !isExist {
+		return 0, fmt.Errorf("id not found")
+	}
+	var user entities.Users
+	errScan := result.Scan(&user.Id)
+	if errScan != nil {
+		return 0, errScan
+	}
+	userId := user.Id
+	return userId, nil
+}
