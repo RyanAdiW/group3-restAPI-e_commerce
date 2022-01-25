@@ -1,4 +1,9 @@
 mode: set
+sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:18.116,20.2 1 1
+sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:23.86,24.36 1 1
+sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:24.36,28.17 2 1
+sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:33.3,33.107 1 1
+sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:28.17,31.4 2 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:22.115,24.2 1 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:27.70,28.36 1 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:28.36,33.16 2 1
@@ -24,7 +29,7 @@ sirclo/groupproject/restapi/delivery/controller/product/product.go:99.3,110.17 3
 sirclo/groupproject/restapi/delivery/controller/product/product.go:115.3,115.102 1 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:90.49,92.4 1 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:95.22,97.4 1 1
-sirclo/groupproject/restapi/delivery/controller/product/product.go:110.17,113.4 2 0
+sirclo/groupproject/restapi/delivery/controller/product/product.go:110.17,113.4 2 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:120.72,121.36 1 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:121.36,124.21 2 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:128.3,129.17 2 1
@@ -44,18 +49,13 @@ sirclo/groupproject/restapi/delivery/controller/product/product.go:158.36,161.21
 sirclo/groupproject/restapi/delivery/controller/product/product.go:165.3,166.17 2 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:170.3,171.22 2 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:175.3,175.32 1 1
-sirclo/groupproject/restapi/delivery/controller/product/product.go:179.3,180.21 2 0
+sirclo/groupproject/restapi/delivery/controller/product/product.go:179.3,180.21 2 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:183.3,183.94 1 0
 sirclo/groupproject/restapi/delivery/controller/product/product.go:161.21,163.4 1 1
 sirclo/groupproject/restapi/delivery/controller/product/product.go:166.17,168.4 1 1
-sirclo/groupproject/restapi/delivery/controller/product/product.go:171.22,173.4 1 1
+sirclo/groupproject/restapi/delivery/controller/product/product.go:171.22,173.4 1 0
 sirclo/groupproject/restapi/delivery/controller/product/product.go:175.32,177.4 1 1
-sirclo/groupproject/restapi/delivery/controller/product/product.go:180.21,182.4 1 0
-sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:18.116,20.2 1 1
-sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:23.86,24.36 1 1
-sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:24.36,28.17 2 1
-sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:33.3,33.107 1 1
-sirclo/groupproject/restapi/delivery/controller/productCategory/productCategory.go:28.17,31.4 2 1
+sirclo/groupproject/restapi/delivery/controller/product/product.go:180.21,182.4 1 1
 sirclo/groupproject/restapi/delivery/controller/user/user.go:22.70,24.2 1 1
 sirclo/groupproject/restapi/delivery/controller/user/user.go:27.63,28.36 1 1
 sirclo/groupproject/restapi/delivery/controller/user/user.go:28.36,31.17 2 1
