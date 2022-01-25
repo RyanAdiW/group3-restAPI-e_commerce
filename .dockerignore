@@ -1,2 +1,4 @@
 test.env
 cover.out
+product_test.go
+user_test.go
