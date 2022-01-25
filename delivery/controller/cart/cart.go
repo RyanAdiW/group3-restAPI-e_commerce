@@ -64,12 +64,25 @@ func (cc CartController) Create() echo.HandlerFunc {
 			Quantity:    cartRequest.Quantity,
 			Total_price: totalPrice,
 		}
+		productCart, message, errGetProductCart := cc.repository.GetProductFromCart(userId, cartRequest.Id_product)
+		if errGetProductCart != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to get product on cart"))
+		}
+		if message != "" {
+			err := cc.repository.Create(cart)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create user cart"))
+			}
+		} else {
+			total_quantity := cartRequest.Quantity + productCart.Quantity
+			cart.Quantity = total_quantity
+			err := cc.repository.Update(cart, productCart.Id)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to update user cart"))
+			}
+		}
 
 		// create user to database
-		err := cc.repository.Create(cart)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create user cart"))
-		}
 
 		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success create user cart"))
 	}

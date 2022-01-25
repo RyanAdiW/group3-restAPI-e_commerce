@@ -73,3 +73,20 @@ func (cr *CartRepository) GetProductPrice(id_product int) (entities.Products, er
 	}
 	return product, nil
 }
+
+func (cr *CartRepository) GetProductFromCart(id_user, id_product int) (entities.Cart, string, error) {
+	result, err := cr.db.Query(`SELECT id, id_product, quantity FROM cart WHERE id_product = ? AND id_user = ?`, id_product, id_user)
+	if err != nil {
+		return entities.Cart{}, "", err
+	}
+	if isExist := result.Next(); !isExist {
+		return entities.Cart{}, "not found", nil
+	}
+
+	var cart entities.Cart
+	errScan := result.Scan(&cart.Id, &cart.Id_product, &cart.Quantity)
+	if errScan != nil {
+		return entities.Cart{}, "", errScan
+	}
+	return cart, "", nil
+}

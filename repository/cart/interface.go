@@ -10,4 +10,5 @@ type Cart interface {
 	Update(cart entities.Cart, id int) error
 	Delete(id int) error
 	GetProductPrice(id_product int) (entities.Products, error)
+	GetProductFromCart(id_user, id_product int) (entities.Cart, string, error)
 }
