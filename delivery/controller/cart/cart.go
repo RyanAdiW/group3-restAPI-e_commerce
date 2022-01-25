@@ -51,17 +51,38 @@ func (cc CartController) Create() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, response.UnauthorizedRequest("unauthorized", "unauthorized access"))
 		}
 
+		product, errGetProductPrice := cc.repository.GetProductPrice(cartRequest.Id_product)
+		if errGetProductPrice != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to get product price"))
+		}
+
+		totalPrice := product.Price * cartRequest.Quantity
+
 		cart := entities.Cart{
-			Id_user:    userId,
-			Id_product: cartRequest.Id_product,
-			Quantity:   cartRequest.Quantity,
+			Id_user:     userId,
+			Id_product:  cartRequest.Id_product,
+			Quantity:    cartRequest.Quantity,
+			Total_price: totalPrice,
+		}
+		productCart, message, errGetProductCart := cc.repository.GetProductFromCart(userId, cartRequest.Id_product)
+		if errGetProductCart != nil {
+			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to get product on cart"))
+		}
+		if message != "" {
+			err := cc.repository.Create(cart)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create user cart"))
+			}
+		} else {
+			total_quantity := cartRequest.Quantity + productCart.Quantity
+			cart.Quantity = total_quantity
+			err := cc.repository.Update(cart, productCart.Id)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to update user cart"))
+			}
 		}
 
 		// create user to database
-		err := cc.repository.Create(cart)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.BadRequest("failed", "failed to create user cart"))
-		}
 
 		return c.JSON(http.StatusOK, response.SuccessOperationDefault("success", "success create user cart"))
 	}
